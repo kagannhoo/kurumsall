@@ -31,7 +31,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="KurSal — Kurumsal Saldırı Yüzeyi İzleme Platformu",
+    description=(
+        "**KurSal** — Kurumsal Saldırı Yüzeyi İzleme Platformu\n\n"
+        "Port, domain, SSL ve cloud varlıklarını izler; risk skorlar; "
+        "AI destekli saldırı senaryoları üretir.\n\n"
+        "> ⚠️ **Yasal uyarı:** Bu araç yalnızca yetkili sistemlerde kullanılabilir. "
+        "İzinsiz tarama TCK 243–245 kapsamında suçtur.\n\n"
+        "Yazar: [kagannhoo](https://github.com/kagannhoo) · "
+        "Lisans: MIT · "
+        "Kaynak: [github.com/kagannhoo/kurumsall](https://github.com/kagannhoo/kurumsall)"
+    ),
+    contact={"name": "kagannhoo", "url": "https://github.com/kagannhoo/kurumsall"},
+    license_info={"name": "MIT", "url": "https://github.com/kagannhoo/kurumsall/blob/main/LICENSE"},
     lifespan=lifespan,
 )
 

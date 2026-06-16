@@ -147,10 +147,27 @@ python -m pytest tests/ -q
 
 ---
 
+## Yasal uyarı
+
+> KurSal **yalnızca yetkili olduğunuz sistemlerde** kullanılmak üzere tasarlanmıştır.
+> İzinsiz tarama Türkiye'de TCK 243–245 kapsamında suçtur.
+> Bkz. [SECURITY.md](SECURITY.md)
+
+## Kaynakça ve atıflar
+
+- Tehdit taktikleri: [MITRE ATT&CK®](https://attack.mitre.org/) (CC BY 4.0)
+- Risk skorlama metodolojisi: [CVSS — FIRST.Org](https://www.first.org/cvss/)
+- Opsiyonel tarama araçları: [Subfinder](https://github.com/projectdiscovery/subfinder), [Naabu](https://github.com/projectdiscovery/naabu) (MIT)
+- Tüm bağımlılıklar ve lisansları: [CREDITS.md](CREDITS.md)
+
+## Yazar
+
+**Kagan** ([@kagannhoo](https://github.com/kagannhoo))
+
 ## Katkı
 
 Bkz. [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Lisans
 
-[MIT](LICENSE)
+[MIT](LICENSE) — Copyright (c) 2026 Kagan (kagannhoo)
