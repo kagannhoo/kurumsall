@@ -725,6 +725,10 @@ export default function App() {
         <button className="btn secondary full logout-btn" onClick={handleLogout}>
           Çıkış
         </button>
+        <footer className="sidebar-footer">
+          <span>@kagannhoo</span>
+          <span className="muted">· Cursor + Auto</span>
+        </footer>
         {orgs.length === 0 && (
           <button className="btn secondary full" onClick={handleSeed}>
             Demo Organizasyon Oluştur

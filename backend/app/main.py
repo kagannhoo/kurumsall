@@ -38,6 +38,7 @@ app = FastAPI(
         "> ⚠️ **Yasal uyarı:** Bu araç yalnızca yetkili sistemlerde kullanılabilir. "
         "İzinsiz tarama TCK 243–245 kapsamında suçtur.\n\n"
         "Yazar: [kagannhoo](https://github.com/kagannhoo) · "
+        "Geliştirme: Cursor + Auto (Cursor Agent) · "
         "Lisans: MIT · "
         "Kaynak: [github.com/kagannhoo/kurumsall](https://github.com/kagannhoo/kurumsall)"
     ),

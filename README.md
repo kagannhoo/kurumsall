@@ -159,10 +159,13 @@ python -m pytest tests/ -q
 - Risk skorlama metodolojisi: [CVSS — FIRST.Org](https://www.first.org/cvss/)
 - Opsiyonel tarama araçları: [Subfinder](https://github.com/projectdiscovery/subfinder), [Naabu](https://github.com/projectdiscovery/naabu) (MIT)
 - Tüm bağımlılıklar ve lisansları: [CREDITS.md](CREDITS.md)
+- Geliştirme: [Cursor](https://cursor.com/) + Auto (Cursor Agent)
 
-## Yazar
+## Yazar ve geliştirme
 
-**Kagan** ([@kagannhoo](https://github.com/kagannhoo))
+**Kagan** ([@kagannhoo](https://github.com/kagannhoo)) — proje sahibi
+
+**Cursor + Auto** — AI destekli geliştirme asistanı
 
 ## Katkı
 

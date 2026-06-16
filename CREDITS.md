@@ -83,6 +83,19 @@ Risk skorlama mantığı CVSS metodolojisinden ilham almaktadır.
 
 ---
 
+## Geliştirme araçları
+
+| Araç | Kullanım |
+|------|---------|
+| [Cursor](https://cursor.com/) | AI destekli IDE — mimari tasarım, kod üretimi, hata ayıklama ve dokümantasyon |
+| [Auto (Cursor Agent)](https://cursor.com/) | AI kod asistanı — backend/frontend geliştirme, test ve DevOps otomasyonu |
+
+> Bu proje **Kagan** tarafından yönetilmiş; Cursor ve Auto (Cursor Agent) ile birlikte geliştirilmiştir.
+> Tüm tasarım kararları, domain doğrulama, yasal sınırlar ve nihai onay proje sahibine aittir.
+> AI tarafından üretilen kod MIT lisansı altında yayınlanmaktadır.
+
+---
+
 ## Yasal uyarı / Disclaimer
 
 > **KurSal yalnızca yetkili olduğunuz sistemlerde kullanılmak üzere tasarlanmıştır.**
@@ -99,8 +112,10 @@ Risk skorlama mantığı CVSS metodolojisinden ilham almaktadır.
 
 ---
 
-## Yazar
+## Yazar ve geliştirme
 
-**Kagan** ([@kagannhoo](https://github.com/kagannhoo))
+**Kagan** ([@kagannhoo](https://github.com/kagannhoo)) — proje sahibi ve sorumlu geliştirici
+
+**Cursor + Auto (Cursor Agent)** — AI destekli geliştirme asistanı ([cursor.com](https://cursor.com/))
 
 Proje: https://github.com/kagannhoo/kurumsall

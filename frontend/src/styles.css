@@ -769,6 +769,17 @@ body {
   margin-top: auto;
 }
 
+.sidebar-footer {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
 .dashboard-header {
   display: flex;
   justify-content: space-between;
