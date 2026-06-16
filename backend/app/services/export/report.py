@@ -14,7 +14,7 @@ from app.schemas.api import DashboardSummary
 def export_dashboard_csv(dashboard: DashboardSummary) -> str:
     buf = io.StringIO()
     writer = csv.writer(buf)
-    writer.writerow(["Kurumsal ASM — Yönetici Raporu"])
+    writer.writerow(["KurSal — Yönetici Raporu"])
     writer.writerow(["Organizasyon", dashboard.organization_name])
     writer.writerow(["Tarih", datetime.now(timezone.utc).isoformat()])
     writer.writerow(["Risk Skoru", dashboard.risk_score])
@@ -63,7 +63,7 @@ def export_dashboard_pdf(dashboard: DashboardSummary) -> bytes:
     styles = getSampleStyleSheet()
     story = []
 
-    story.append(Paragraph("Kurumsal Attack Surface Monitor — Yönetici Raporu", styles["Title"]))
+    story.append(Paragraph("KurSal — Yönetici Raporu", styles["Title"]))
     story.append(Spacer(1, 12))
     story.append(Paragraph(f"<b>Organizasyon:</b> {dashboard.organization_name}", styles["Normal"]))
     story.append(Paragraph(f"<b>Risk skoru:</b> {dashboard.risk_score}/10", styles["Normal"]))

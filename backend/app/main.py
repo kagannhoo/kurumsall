@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="Kurumsal Attack Surface Monitor — port, domain, SSL ve cloud asset takibi",
+    description="KurSal — Kurumsal Saldırı Yüzeyi İzleme Platformu",
     lifespan=lifespan,
 )
 

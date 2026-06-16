@@ -6,7 +6,7 @@ Katkıda bulunmak isteyenler için kısa rehber.
 
 ```bash
 # Repo'yu fork'la, sonra:
-git clone https://github.com/YOUR_USER/kurumsall
+git clone https://github.com/kagannhoo/kurumsall
 cd kurumsall
 cp .env.example .env
 docker compose up -d postgres redis

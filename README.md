@@ -1,6 +1,6 @@
-# Kurumsal Attack Surface Monitor (ASM)
+# KurSal — Kurumsal Saldırı Yüzeyi İzleme
 
-[![CI](https://github.com/YOUR_USER/kurumsall/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USER/kurumsall/actions/workflows/ci.yml)
+[![CI](https://github.com/kagannhoo/kurumsall/actions/workflows/ci.yml/badge.svg)](https://github.com/kagannhoo/kurumsall/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-green.svg)](https://fastapi.tiangolo.com/)

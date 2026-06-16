@@ -280,7 +280,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   return (
     <div className="login-page">
       <form className="login-card" onSubmit={handleSubmit}>
-        <h1>Kurumsal ASM</h1>
+        <h1>KurSal</h1>
         <p className="muted">Saldırı yüzeyi izleme platformu</p>
         {error && <div className="error-banner">{error}</div>}
         <label>
@@ -706,7 +706,7 @@ export default function App() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <div className="brand">Kurumsal ASM</div>
+        <div className="brand">KurSal</div>
         <p className="sidebar-desc">Saldırı yüzeyi izleme</p>
         <nav>
           {orgs.map((org) => (

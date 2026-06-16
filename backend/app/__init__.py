@@ -1,1 +1,1 @@
-"""Kurumsal Attack Surface Monitor — backend application."""
+"""KurSal — Kurumsal Saldırı Yüzeyi İzleme Platformu."""
