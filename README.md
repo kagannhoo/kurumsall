@@ -8,7 +8,8 @@
 Şirketin internete açık tüm dijital varlıklarını (portlar, domainler, SSL sertifikaları, cloud kaynakları) sürekli izleyen, değişiklikleri tespit eden ve AI destekli saldırı senaryoları üreten **self-hosted** kurumsal güvenlik platformu.
 
 > **Repo:** https://github.com/kagannhoo/kurumsall  
-> **Durum:** Açık kaynak POC — demo modu ile hemen denenebilir, production için [PRODUCTION.md](PRODUCTION.md) rehberini takip edin.
+> **Durum:** Açık kaynak POC — demo modu ile hemen denenebilir, production için [PRODUCTION.md](PRODUCTION.md) rehberini takip edin.  
+> **Kaynakça:** [CREDITS.md](CREDITS.md) — tüm bağımlılıklar, MITRE ATT&CK, CVSS, yasal uyarı
 
 ---
 
@@ -188,7 +189,7 @@ cd backend && python -m pytest tests/ -q
 |-------|--------|
 | [PRODUCTION.md](PRODUCTION.md) | Gerçek kullanım kurulum rehberi |
 | [SECURITY.md](SECURITY.md) | Yasal sınırlar, TCK 243–245 |
-| [CREDITS.md](CREDITS.md) | Bağımlılıklar, MITRE ATT&CK atıfı |
+| [CREDITS.md](CREDITS.md) | **Kaynakça** — bağımlılıklar, MITRE ATT&CK, CVSS, OWASP, yasal uyarı |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Katkı rehberi |
 | [docs/LINKEDIN.md](docs/LINKEDIN.md) | LinkedIn paylaşım metni |
 

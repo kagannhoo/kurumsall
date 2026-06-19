@@ -55,9 +55,10 @@ Her birinin lisans şartlarına eksiksiz uyulmaktadır.
 | [Redis](https://redis.io/) | RSALv2 / SSPLv1 (7.x) | Mesaj kuyruğu ve cache |
 | [Docker](https://www.docker.com/) | Apache-2.0 | Container altyapısı |
 | [Ollama](https://ollama.com/) | MIT | Yerel LLM çalıştırma |
-| [Subfinder](https://github.com/projectdiscovery/subfinder) (opsiyonel) | MIT | Pasif subdomain keşfi |
-| [Naabu](https://github.com/projectdiscovery/naabu) (opsiyonel) | MIT | Port tarama |
-| [Nuclei](https://github.com/projectdiscovery/nuclei) (opsiyonel) | MIT | CVE / zafiyet taraması |
+| [Subfinder](https://github.com/projectdiscovery/subfinder) | MIT | Pasif subdomain keşfi (Docker imajında) |
+| [Naabu](https://github.com/projectdiscovery/naabu) | MIT | Port tarama (Docker imajında) |
+| [Nuclei](https://github.com/projectdiscovery/nuclei) | MIT | CVE / zafiyet taraması (Docker imajında) |
+| [nuclei-templates](https://github.com/projectdiscovery/nuclei-templates) | MIT | Nuclei CVE ve güvenlik şablonları |
 
 ---
 
@@ -81,6 +82,15 @@ Risk skorlama mantığı CVSS metodolojisinden ilham almaktadır.
 
 > CVSS is owned and managed by FIRST.Org, Inc.
 > https://www.first.org/cvss/
+
+### OWASP
+
+Attack surface monitoring ve dış yüzey yönetimi kavramları [OWASP](https://owasp.org/) ASM rehberlerinden ilham almaktadır.
+
+### ProjectDiscovery
+
+DNS, port ve zafiyet tarama modülleri [ProjectDiscovery](https://projectdiscovery.io/) araç ekosistemini (Subfinder, Naabu, Nuclei) kullanmaktadır.
+Şablonlar: https://github.com/projectdiscovery/nuclei-templates
 
 ---
 
