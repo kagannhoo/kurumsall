@@ -67,7 +67,9 @@ services:
       dockerfile: Dockerfile
       args:
         INSTALL_SCANNERS: ${INSTALL_SCANNERS:-true}
-    command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
+    command: >
+      sh -c "command -v nuclei >/dev/null 2>&1 && nuclei -update-templates -silent || true;
+      exec celery -A app.workers.celery_app worker --loglevel=info --concurrency=2"
     environment:
       DATABASE_URL: postgresql+asyncpg://asm:asm@postgres:5432/asm
       DATABASE_URL_SYNC: postgresql://asm:asm@postgres:5432/asm
