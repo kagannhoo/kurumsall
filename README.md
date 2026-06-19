@@ -86,12 +86,15 @@ Kurumsal firmaların en büyük kör noktası genelde **dışarıdan görünen d
 - Docker + Docker Compose
 - (Opsiyonel) [Ollama](https://ollama.com) — yerel LLM
 
+> **Nuclei, Naabu ve Subfinder** Docker worker imajına gömülü gelir — ayrı kurulum gerekmez.
+
 ### Kurulum
 
 ```bash
 git clone https://github.com/kagannhoo/kurumsall
 cd kurumsall
 cp .env.example .env
+docker compose build
 docker compose up -d postgres redis
 docker compose run --rm api alembic upgrade head
 docker compose up -d
@@ -119,8 +122,8 @@ Giriş: **admin@local / admin123**
 |---|------|------------|
 | Domain | `example.com` (test domain) | Kendi doğrulanmış domain |
 | Cloud | JSON config envanteri | AWS/Azure API (roadmap) |
-| Port/DNS | Yerleşik (sınırlı) | Naabu + Subfinder |
-| Zafiyet | Kapalı (Nuclei devre dışı) | Nuclei CVE şablonları |
+| Port/DNS | Yerleşik (sınırlı) | Naabu + Subfinder (Docker'da hazır) |
+| Zafiyet | Nuclei (Docker'da hazır) | Aynı — `SCANNER_USE_EXTERNAL_TOOLS=true` varsayılan |
 | Doğrulama | "Demo: Doğrula" butonu | DNS TXT kaydı zorunlu |
 | Banner | Dashboard'da sarı uyarı | Yok |
 
@@ -129,7 +132,7 @@ Giriş: **admin@local / admin123**
 1. `.env` → `SECRET_KEY`, `ADMIN_PASSWORD`, `DEMO_MODE=false`
 2. Kendi organizasyonunuzu oluşturun (demo-company kullanmayın)
 3. Domain'inizi DNS TXT ile doğrulayın
-4. Naabu/Subfinder/Nuclei kurun → `SCANNER_USE_EXTERNAL_TOOLS=true`
+4. Production'da `SECRET_KEY` + admin şifresini değiştirin (`SCANNER_USE_EXTERNAL_TOOLS` zaten `true`)
 5. Ollama başlatın → AI analiz zenginleşir
 6. Slack webhook → kritik bulgu alertleri
 

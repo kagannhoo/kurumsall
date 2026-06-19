@@ -11,8 +11,8 @@ Bu rehber, demo ortamından **gerçek kurumsal kullanıma** geçmek için yapman
 | Domain | `example.com` — test domain | Kendi şirket domain'iniz |
 | Domain doğrulama | UI'da "Demo: Doğrula" butonu | DNS TXT kaydı (`_asm-verify.domain.com`) |
 | Cloud envanter | JSON config'ten okunur | AWS/Azure API (roadmap) veya manuel envanter |
-| Port/DNS tarama | Yerleşik (sınırlı port listesi) | Naabu + Subfinder kurulumu |
-| Zafiyet tarama | Nuclei devre dışı | Nuclei + CVE şablonları |
+| Port/DNS tarama | Naabu + Subfinder (Docker'da hazır) | Aynı |
+| Zafiyet tarama | Nuclei CVE şablonları (Docker'da hazır) | Periyodik şablon güncellemesi |
 | AI analiz | Ollama kapalıysa kural tabanlı | `ollama serve` + `llama3.1` |
 | Kimlik bilgileri | `admin@local / admin123` | Güçlü şifre + `SECRET_KEY` |
 | Alert | Kapalı | Slack webhook URL |
@@ -103,42 +103,40 @@ Doğrulama:
 
 ---
 
-## Adım 5 — Harici tarayıcıları kurun (önerilen)
+## Adım 5 — Harici tarayıcılar (Docker'da hazır)
 
-Docker container içinde Naabu, Subfinder ve Nuclei varsayılan olarak kurulu değil. Production tarama kapsamı için worker imajını tarayıcılarla build edin:
+**Nuclei, Naabu ve Subfinder** worker imajına varsayılan olarak gömülüdür. `docker compose build && docker compose up -d` yeterli.
 
 ```powershell
-# docker-compose.yml worker/api build args:
-#   INSTALL_SCANNERS: "true"
-docker compose build --build-arg INSTALL_SCANNERS=true worker api
+docker compose build
 docker compose up -d
 ```
 
-Worker container'da Nuclei şablonlarını güncelleyin (ilk kurulumda bir kez):
+İlk worker başlatılışında Nuclei CVE şablonları otomatik indirilir. Manuel güncelleme:
 
 ```powershell
 docker compose exec worker nuclei -update-templates
 ```
 
-Alternatif — host makinede kurulum:
-
+`.env` varsayılanları:
 ```bash
-# Nuclei (Linux/macOS)
-go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
-nuclei -update-templates
-
-# Subfinder + Naabu
-go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+SCANNER_USE_EXTERNAL_TOOLS=true
+SCANNER_NUCLEI_SEVERITY=critical,high,medium
+SCANNER_NUCLEI_TAGS=cve
 ```
 
-`.env` → `SCANNER_USE_EXTERNAL_TOOLS=true`
+Tarayıcıları devre dışı bırakmak isterseniz (sadece yerleşik mod):
+```bash
+SCANNER_USE_EXTERNAL_TOOLS=false
+INSTALL_SCANNERS=false
+docker compose build --build-arg INSTALL_SCANNERS=false
+```
 
-Şu an yerleşik mod (harici araçlar kapalı):
+Yerleşik fallback (harici araçlar kapalıysa):
 - DNS: 15 yaygın subdomain brute-force
 - Port: 16 kritik port TCP connect
 - SSL: Canlı TLS handshake
-- Zafiyet: atlanır (Nuclei gerekli)
+- Zafiyet: atlanır
 
 ---
 

@@ -28,6 +28,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        INSTALL_SCANNERS: ${INSTALL_SCANNERS:-true}
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "${API_HOST_PORT:-8087}:8000"
@@ -40,7 +42,10 @@ services:
       AI_ENABLED: "true"
       OLLAMA_BASE_URL: http://host.docker.internal:11434
       OLLAMA_MODEL: llama3.1
-      SCANNER_USE_EXTERNAL_TOOLS: "false"
+      SCANNER_USE_EXTERNAL_TOOLS: ${SCANNER_USE_EXTERNAL_TOOLS:-true}
+      SCANNER_NUCLEI_SEVERITY: ${SCANNER_NUCLEI_SEVERITY:-critical,high,medium}
+      SCANNER_NUCLEI_TAGS: ${SCANNER_NUCLEI_TAGS:-cve}
+      SCANNER_NUCLEI_TIMEOUT: ${SCANNER_NUCLEI_TIMEOUT:-900}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@local}
@@ -61,7 +66,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
       args:
-        INSTALL_SCANNERS: ${INSTALL_SCANNERS:-false}
+        INSTALL_SCANNERS: ${INSTALL_SCANNERS:-true}
     command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
     environment:
       DATABASE_URL: postgresql+asyncpg://asm:asm@postgres:5432/asm
@@ -72,7 +77,10 @@ services:
       AI_ENABLED: "true"
       OLLAMA_BASE_URL: http://host.docker.internal:11434
       OLLAMA_MODEL: llama3.1
-      SCANNER_USE_EXTERNAL_TOOLS: "false"
+      SCANNER_USE_EXTERNAL_TOOLS: ${SCANNER_USE_EXTERNAL_TOOLS:-true}
+      SCANNER_NUCLEI_SEVERITY: ${SCANNER_NUCLEI_SEVERITY:-critical,high,medium}
+      SCANNER_NUCLEI_TAGS: ${SCANNER_NUCLEI_TAGS:-cve}
+      SCANNER_NUCLEI_TIMEOUT: ${SCANNER_NUCLEI_TIMEOUT:-900}
       SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
       AUTH_ENABLED: ${AUTH_ENABLED:-true}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@local}
@@ -92,6 +100,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        INSTALL_SCANNERS: ${INSTALL_SCANNERS:-true}
     command: celery -A app.workers.celery_app beat --loglevel=info
     environment:
       DATABASE_URL: postgresql+asyncpg://asm:asm@postgres:5432/asm

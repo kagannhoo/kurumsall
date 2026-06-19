@@ -1,69 +1,72 @@
 # LinkedIn Paylaşım Metni — KurSal
 
-Aşağıdaki metni kopyalayıp LinkedIn'e yapıştırabilirsin. Dashboard ekran görüntüsü ekle (saldırı senaryoları paneli en etkileyici olanı).
+Dashboard ekran görüntüsü ekle (saldırı senaryoları + tarama modül durumu paneli ideal).
+
+Aşağıdaki **çift dilli post** tek paylaşımda TR + EN içerir — LinkedIn'e olduğu gibi yapıştır.
 
 ---
 
-## Post (Türkçe)
+## Post (Türkçe + English — tek paylaşım)
 
-**KurSal — Self-Hosted Attack Surface Monitor**
+🇹🇷 **KurSal — Self-Hosted Attack Surface Monitor**
 
 Son dönemde sıfırdan geliştirdiğim açık kaynak bir siber güvenlik projesini paylaşmak istiyorum.
 
-KurSal, şirketin internete açık dijital varlıklarını (portlar, domainler, SSL sertifikaları, cloud kaynakları) izleyen, değişiklikleri tespit eden ve AI destekli saldırı senaryoları üreten self-hosted bir platform.
+KurSal, şirketin internete açık dijital varlıklarını (portlar, domainler, SSL sertifikaları, cloud kaynakları) izleyen, değişiklikleri tespit eden ve AI destekli saldırı senaryoları üreten **self-hosted** bir platform.
 
 **Ne problemi çözüyor?**
+Kurumsal firmalar genelde "dışarıdan bize neler görünüyor?" sorusuna net cevap veremiyor. Yeni açılan bir port, unutulan bir subdomain, süresi dolmak üzere olan SSL sertifikası veya bilinen bir CVE — saldırganlar için fırsat, güvenlik ekipleri için kör nokta.
 
-Kurumsal firmalar genelde "dışarıdan bize neler görünüyor?" sorusuna net cevap veremiyor. Yeni açılan bir port, unutulan bir subdomain, süresi dolmak üzere olan SSL sertifikası veya bilinen bir CVE — bunlar saldırganlar için fırsat, güvenlik ekipleri için kör nokta.
-
-KurSal bunu otomatikleştiriyor:
+**KurSal ne yapıyor?**
 → Günlük snapshot + diff (ne eklendi, ne değişti?)
 → Risk skoru (0–10, haftalık delta)
-→ **Nuclei ile CVE zafiyet taraması** (critical/high/medium)
-→ Saldırı senaryoları ("MySQL portu açıksa ne olur?", "CVE eşleşmesi varsa ne olur?")
-→ Aksiyon planı (kim, ne yapmalı, ne kadar sürede)
+→ Nuclei ile CVE zafiyet taraması
+→ Saldırı senaryoları + aksiyon planı (kim, ne, ne kadar sürede)
 → Yönetici raporu (PDF/CSV)
 
-**Teknik stack:**
-FastAPI · Celery · PostgreSQL · React · Nuclei · Ollama (opsiyonel, veri dışarı çıkmaz)
+**Kurulum kolay:** `docker compose up` — Nuclei, Naabu, Subfinder imaja gömülü geliyor, ayrı kurulum yok.
 
-**Önemli not — dürüst olmak gerekirse:**
+Stack: FastAPI · Celery · PostgreSQL · React · Nuclei · Ollama (opsiyonel)
 
-Bu bir production-ready POC / açık kaynak side project. Demo modunda `example.com` ile çalışıyor; cloud envanteri yapılandırılmış JSON'dan geliyor (henüz canlı AWS/Azure API yok). Nuclei modülü harici araçlar açıkken aktif — Docker demo'da varsayılan kapalı.
+Demo modunda `example.com` ile denenebilir. Production için domain DNS doğrulama + credential hardening yeterli.
 
-Gerçek kurumsal kullanım için:
-• Kendi domain'inizi DNS TXT ile doğrulamanız
-• SECRET_KEY ve admin şifresini değiştirmeniz
-• Naabu/Subfinder/Nuclei kurup `SCANNER_USE_EXTERNAL_TOOLS=true` yapmanız
-• `nuclei -update-templates` ile CVE şablonlarını güncellemeniz
-• Ollama ile AI analizini aktifleştirmeniz gerekiyor
-
-Tüm adımlar repoda detaylı: https://github.com/kagannhoo/kurumsall
-
+🔗 https://github.com/kagannhoo/kurumsall
 MIT lisanslı, katkıya açık.
 
-#CyberSecurity #AttackSurface #DevSecOps #OpenSource #FastAPI #Nuclei #InfoSec
+#CyberSecurity #AttackSurface #DevSecOps #OpenSource #Nuclei #InfoSec
 
 ---
 
-## Kısa versiyon (story / yorum için)
+🇬🇧 **KurSal — Self-Hosted Attack Surface Monitor**
 
-KurSal: self-hosted attack surface monitor — port/domain/SSL/cloud izleme, Nuclei CVE taraması, diff analizi, AI saldırı senaryoları. Açık kaynak (MIT): https://github.com/kagannhoo/kurumsall
+I'm sharing an open-source security platform I built from scratch.
 
----
+KurSal monitors your organization's internet-facing assets — open ports, domains, SSL certificates, and cloud resources — detects changes over time, and generates AI-assisted attack scenarios with actionable remediation plans. Everything runs **self-hosted**; your data never leaves your network.
 
-## İngilizce versiyon (opsiyonel)
+**The problem:** Most teams can't answer "what do attackers see from the outside?" New ports, forgotten subdomains, expiring certs, or known CVEs are blind spots until it's too late.
 
-**KurSal — Self-Hosted Attack Surface Monitor**
+**What KurSal does:**
+→ Daily snapshots + diff engine
+→ Risk score (0–10, weekly delta)
+→ CVE scanning with Nuclei
+→ Attack scenarios + action items (owner, priority, timeline)
+→ Executive reports (PDF/CSV)
 
-I built an open-source security platform that monitors your organization's external-facing assets: open ports, domains, SSL certificates, and cloud resources.
-
-It runs daily snapshots, detects changes (diff engine), scores risk, scans for known CVEs with **Nuclei**, and generates AI-powered attack scenarios with actionable remediation plans — all self-hosted, no data leaves your network.
+**Zero-hassle setup:** `docker compose up` — Nuclei, Naabu, and Subfinder are pre-baked into the Docker image. No manual scanner install.
 
 Stack: FastAPI · Celery · PostgreSQL · React · Nuclei · Ollama (optional)
 
-Currently a POC with demo mode (example.com). Production setup requires domain verification, credential hardening, and external scanners (Naabu/Subfinder/Nuclei) with `SCANNER_USE_EXTERNAL_TOOLS=true`.
+Try it in demo mode with example.com. For production: verify your domain via DNS TXT and rotate secrets.
 
-MIT licensed: https://github.com/kagannhoo/kurumsall
+🔗 https://github.com/kagannhoo/kurumsall
+MIT licensed, contributions welcome.
 
-#CyberSecurity #AttackSurface #DevSecOps #OpenSource #Nuclei
+#CyberSecurity #AttackSurface #DevSecOps #OpenSource #Nuclei #InfoSec
+
+---
+
+## Kısa versiyon (yorum / story)
+
+TR: KurSal — self-hosted attack surface monitor. Docker ile tek komut, Nuclei dahil. https://github.com/kagannhoo/kurumsall
+
+EN: KurSal — self-hosted ASM with Nuclei baked in. One `docker compose up`. https://github.com/kagannhoo/kurumsall
