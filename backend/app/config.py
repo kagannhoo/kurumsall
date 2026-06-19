@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     require_domain_verification: bool = True
     ollama_health_cache_seconds: int = 30
 
+    demo_mode: bool = True
+    scan_cooldown_seconds: int = 60
+
 
 @lru_cache
 def get_settings() -> Settings:

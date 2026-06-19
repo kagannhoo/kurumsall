@@ -310,6 +310,7 @@ class CloudScanner(BaseScanner):
                             "region": resource.get("region"),
                             "public": resource.get("public", False),
                             "metadata": resource.get("metadata", {}),
+                            "source": "configured_inventory",
                         },
                         risk_score=self._cloud_risk(resource),
                     )

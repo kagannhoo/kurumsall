@@ -12,6 +12,8 @@ import {
   isLoggedIn,
   setToken,
 } from "./api";
+import { DemoBanner } from "./components/DemoBanner";
+import { ScannerModulesPanel } from "./components/ScannerModulesPanel";
 
 const CHANGE_LABELS: Record<string, string> = {
   added: "Yeni",
@@ -396,6 +398,8 @@ function DashboardView({
 
       {scanStatus && <div className="scan-status-banner">{scanStatus}</div>}
 
+      <DemoBanner dashboard={dashboard} />
+
       <OllamaStatus status={dashboard.ollama_status} />
 
       {dashboard.executive_summary && (
@@ -463,17 +467,7 @@ function DashboardView({
         </section>
       </div>
 
-      <section className="panel">
-        <h2>Aktif Tarama Modülleri</h2>
-        <p className="panel-intro muted">
-          Her taramada aşağıdaki collector&apos;lar sırayla çalışır; sonuçlar snapshot olarak saklanır ve bir önceki günle karşılaştırılır.
-        </p>
-        <ul className="coverage-list">
-          {dashboard.scan_coverage.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
+      <ScannerModulesPanel modules={dashboard.scanner_modules} />
 
       {dashboard.critical_findings.length > 0 && (
         <section className="panel critical-panel">

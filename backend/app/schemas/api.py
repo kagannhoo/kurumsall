@@ -112,6 +112,27 @@ class SystemStatusResponse(BaseModel):
     ai_enabled: bool
 
 
+class ScannerModuleStatus(BaseModel):
+    module: str
+    label: str
+    status: str
+    asset_count: int = 0
+    mode: str
+    note: str = ""
+    error: str | None = None
+
+
+class SystemInfoResponse(BaseModel):
+    app_name: str
+    version: str
+    deployment_mode: str
+    demo_mode_enabled: bool
+    capabilities: dict
+    scanner_modes: dict
+    roadmap: list[str]
+    demo_notice: str | None = None
+
+
 class AssetInventoryItem(BaseModel):
     asset_type: str
     label: str
@@ -143,6 +164,10 @@ class DashboardSummary(BaseModel):
     scan_coverage: list[str] = []
     executive_summary: str | None = None
     ollama_status: dict | None = None
+    deployment_mode: str = "production"
+    is_demo_organization: bool = False
+    scanner_modules: list[ScannerModuleStatus] = []
+    demo_notice: str | None = None
 
 
 class TimelinePoint(BaseModel):

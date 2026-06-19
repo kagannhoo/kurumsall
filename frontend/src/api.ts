@@ -112,6 +112,31 @@ export interface DashboardSummary {
     models?: string[];
     error?: string;
   } | null;
+  deployment_mode: string;
+  is_demo_organization: boolean;
+  scanner_modules: ScannerModule[];
+  demo_notice: string | null;
+}
+
+export interface ScannerModule {
+  module: string;
+  label: string;
+  status: string;
+  asset_count: number;
+  mode: string;
+  note: string;
+  error?: string | null;
+}
+
+export interface SystemInfo {
+  app_name: string;
+  version: string;
+  deployment_mode: string;
+  demo_mode_enabled: boolean;
+  capabilities: Record<string, boolean>;
+  scanner_modes: Record<string, string>;
+  roadmap: string[];
+  demo_notice: string | null;
 }
 
 export interface TimelinePoint {
@@ -236,4 +261,5 @@ export const api = {
   exportPdf: (orgId: string, slug: string) => download(`/organizations/${orgId}/export/pdf`, `asm-${slug}.pdf`),
   getSystemStatus: () =>
     request<{ ollama: Record<string, unknown>; ai_enabled: boolean }>("/system/status"),
+  getSystemInfo: () => request<SystemInfo>("/system/info"),
 };

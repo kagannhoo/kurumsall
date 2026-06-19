@@ -20,6 +20,8 @@ from app.models.entities import (
     ScanRun,
     ScanStatus,
 )
+from datetime import datetime, timezone
+
 from app.schemas.api import (
     AIInsightResponse,
     AssetInventoryItem,
@@ -30,6 +32,8 @@ from app.schemas.api import (
     OrganizationResponse,
     PerimeterInfo,
     ScanRunResponse,
+    ScannerModuleStatus,
+    SystemInfoResponse,
     SystemStatusResponse,
     TimelinePoint,
     TimelineResponse,
@@ -45,6 +49,11 @@ from app.services.domain.verification import DomainVerificationService
 from app.services.export.report import export_dashboard_csv, export_dashboard_pdf
 from app.services.organizations.helpers import get_cloud_accounts, set_cloud_accounts
 from app.services.scan_orchestrator import ScanOrchestrator
+from app.services.system.capabilities import (
+    build_platform_info,
+    build_scanner_modules,
+    is_demo_organization,
+)
 
 settings = get_settings()
 ai_service = AIAnalysisService()
@@ -57,6 +66,36 @@ router = APIRouter()
 async def system_status(_user: AuthUser = Depends(get_current_user)):
     ollama = await ai_service.check_ollama()
     return SystemStatusResponse(ollama=ollama, ai_enabled=settings.ai_enabled)
+
+
+@router.get("/system/info", response_model=SystemInfoResponse)
+async def system_info(_user: AuthUser = Depends(get_current_user)):
+    return SystemInfoResponse(**build_platform_info())
+
+
+async def _ensure_scan_cooldown(db: AsyncSession, org_id: UUID) -> None:
+    if settings.scan_cooldown_seconds <= 0:
+        return
+    stmt = (
+        select(ScanRun)
+        .where(
+            ScanRun.organization_id == org_id,
+            ScanRun.status.in_([ScanStatus.PENDING, ScanStatus.RUNNING, ScanStatus.COMPLETED]),
+        )
+        .order_by(ScanRun.started_at.desc())
+        .limit(1)
+    )
+    result = await db.execute(stmt)
+    last = result.scalar_one_or_none()
+    if not last or not last.started_at:
+        return
+    elapsed = (datetime.now(timezone.utc) - last.started_at).total_seconds()
+    if elapsed < settings.scan_cooldown_seconds:
+        wait = int(settings.scan_cooldown_seconds - elapsed)
+        raise HTTPException(
+            status_code=429,
+            detail=f"Tarama cooldown aktif — {wait} saniye sonra tekrar deneyin.",
+        )
 
 
 def _perimeter(org: Organization) -> PerimeterInfo:
@@ -116,6 +155,9 @@ async def _build_dashboard(org: Organization, db: AsyncSession) -> DashboardSumm
     latest_scan = scan_result.scalar_one_or_none()
     perimeter = _perimeter(org)
     ollama_status = await ai_service.check_ollama()
+    demo = is_demo_organization(org)
+    platform = build_platform_info(org)
+    scanner_modules = [ScannerModuleStatus(**m) for m in build_scanner_modules(None)]
 
     if not latest_scan:
         return DashboardSummary(
@@ -140,6 +182,10 @@ async def _build_dashboard(org: Organization, db: AsyncSession) -> DashboardSumm
                 "İlk tarama sonrası port, domain, SSL ve cloud envanteri burada görünecek."
             ),
             ollama_status=ollama_status,
+            deployment_mode=platform["deployment_mode"],
+            is_demo_organization=demo,
+            scanner_modules=scanner_modules,
+            demo_notice=platform.get("demo_notice"),
         )
 
     assessment = latest_scan.risk_assessments[0] if latest_scan.risk_assessments else None
@@ -153,6 +199,8 @@ async def _build_dashboard(org: Organization, db: AsyncSession) -> DashboardSumm
     risk_score = assessment.risk_score if assessment else 0.0
     prev_total = assessment.previous_total_assets if assessment else None
     risk_delta = assessment.risk_delta_percent if assessment else None
+    platform = build_platform_info(org)
+    modules = [ScannerModuleStatus(**m) for m in build_scanner_modules(latest_scan.scan_metadata)]
 
     return DashboardSummary(
         organization_id=org.id,
@@ -180,6 +228,10 @@ async def _build_dashboard(org: Organization, db: AsyncSession) -> DashboardSumm
             len(changes),
         ),
         ollama_status=ollama_status,
+        deployment_mode=platform["deployment_mode"],
+        is_demo_organization=is_demo_organization(org),
+        scanner_modules=modules,
+        demo_notice=platform.get("demo_notice"),
     )
 
 
@@ -312,6 +364,8 @@ async def trigger_scan(
             detail=f"Tarama için domain doğrulaması gerekli: {', '.join(unverified)}",
         )
 
+    await _ensure_scan_cooldown(db, org_id)
+
     scan_run = ScanRun(organization_id=org_id, status=ScanStatus.PENDING)
     db.add(scan_run)
     await db.flush()
@@ -339,6 +393,8 @@ async def trigger_scan_sync(
             status_code=400,
             detail=f"Tarama için domain doğrulaması gerekli: {', '.join(unverified)}",
         )
+
+    await _ensure_scan_cooldown(db, org_id)
 
     orchestrator = ScanOrchestrator()
     scan_run = await orchestrator.run_scan(db, org_id)

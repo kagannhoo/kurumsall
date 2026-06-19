@@ -87,6 +87,28 @@ Giriş: **admin@local / admin123** (`.env`'den değiştirilebilir)
 
 ---
 
+## Demo vs Production
+
+| | Demo | Production |
+|---|------|------------|
+| Domain | `example.com` (RFC 2606 test domain) | Kendi doğrulanmış domain'iniz |
+| Cloud | Yapılandırılmış envanter JSON | AWS/Azure API (yol haritasında) |
+| Port/DNS | Gerçek tarama (sınırlı kapsam) | Tam kapsam + Naabu/Subfinder |
+| Domain doğrulama | "Demo: Doğrula" butonu | DNS TXT kaydı zorunlu |
+
+Dashboard'da **Demo modu** banner'ı otomatik görünür. Tarama modül panelinde her modülün durumu (ok/failed) ve modu (yerleşik / harici / yapılandırılmış envanter) listelenir.
+
+Production için `.env` içinde:
+```bash
+DEMO_MODE=false
+REQUIRE_DOMAIN_VERIFICATION=true
+SCANNER_USE_EXTERNAL_TOOLS=true
+SECRET_KEY=<openssl rand -hex 32>
+ADMIN_PASSWORD=<güçlü şifre>
+```
+
+---
+
 ## Ollama (AI saldırı analizi)
 
 Sistem Ollama olmadan da çalışır — kural tabanlı saldırı senaryoları üretir. Ollama açıkken analiz LLM ile zenginleştirilir, veri dışarı çıkmaz.
