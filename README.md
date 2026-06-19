@@ -7,19 +7,52 @@
 
 Şirketin internete açık tüm dijital varlıklarını (portlar, domainler, SSL sertifikaları, cloud kaynakları) sürekli izleyen, değişiklikleri tespit eden ve AI destekli saldırı senaryoları üreten **self-hosted** kurumsal güvenlik platformu.
 
+> **Repo:** https://github.com/kagannhoo/kurumsall  
+> **Durum:** Açık kaynak POC — demo modu ile hemen denenebilir, production için [PRODUCTION.md](PRODUCTION.md) rehberini takip edin.
+
 ---
 
-## Ne yapar?
+## Ne işe yarar?
+
+Kurumsal firmaların en büyük kör noktası genelde **dışarıdan görünen dijital yüzeydir**. KurSal şu sorulara otomatik cevap verir:
+
+- İnternete hangi portlar açık?
+- Hangi subdomain'ler keşfedilebilir durumda?
+- SSL sertifikalarının süresi ne zaman doluyor?
+- Cloud'da public erişime açık kaynak var mı?
+- Dün'e göre yüzeyimizde ne değişti?
+- Bir saldırgan bu bulguları nasıl kullanabilir?
+- Ne yapmalıyız, kim sorumlu, ne kadar sürede?
+
+---
+
+## Ne fayda sağlar?
+
+| Fayda | Açıklama |
+|-------|----------|
+| **Erken uyarı** | Yeni açılan port veya subdomain anında diff raporuna düşer |
+| **Risk önceliklendirme** | 0–10 skor + haftalık delta ile yönetici dili |
+| **Saldırı perspektifi** | Red team senaryoları — "3306 açıksa MySQL sızıntısı nasıl olur?" |
+| **Aksiyon planı** | Öncelik, sorumlu ekip, süre — doğrudan ticket'a dönüştürülebilir |
+| **Yönetici raporu** | PDF/CSV export, executive summary |
+| **Veri gizliliği** | Self-hosted — Ollama ile local AI, veri dışarı çıkmaz |
+| **Yasal koruma** | Domain ownership verification — yalnızca yetkili sistemler taranır |
+
+---
+
+## Özellikler
 
 | Özellik | Açıklama |
 |---------|----------|
 | **Asset keşfi** | DNS brute-force, port tarama (TCP connect), SSL sertifika analizi, cloud envanter |
-| **Snapshot diff** | Her taramayı öncekiyle karşılaştırır; eklenen port, kaybolan domain, değişen SSL süresi |
-| **Risk skoru** | 0–10 arası CVSS ağırlıklı skor, haftalık delta (örn. "Risk +%18") |
-| **Saldırı senaryoları** | Bulgulara göre rule-based + Ollama LLM ile zenginleştirilmiş red team senaryoları |
-| **Aksiyon planı** | Öncelik, sorumlu ekip ve süre içeren yapılacaklar listesi |
-| **Yönetici raporu** | PDF + CSV export, executive summary |
-| **Alert** | Slack webhook, kritik bulgu bildirimi |
+| **Snapshot diff** | Her taramayı öncekiyle karşılaştırır; eklenen port, kaybolan domain, değişen SSL |
+| **Risk skoru** | CVSS ağırlıklı 0–10 skor, haftalık delta |
+| **Saldırı senaryoları** | Rule-based + Ollama LLM zenginleştirme |
+| **Aksiyon planı** | Öncelik, sorumlu, süre |
+| **JWT auth** | API key alternatifi, domain doğrulama |
+| **Export** | PDF + CSV yönetici raporu |
+| **Alert** | Slack webhook (kritik bulgular) |
+| **Metrikler** | Prometheus `/metrics` |
 
 ---
 
@@ -27,63 +60,56 @@
 
 ```
 ┌──────────────────────────────────────────────────┐
-│  React + Vite Dashboard  (localhost:5173)         │
-│  JWT Auth · Attack Scenarios · Export · Timeline  │
+│  React Dashboard  (localhost:5173)                │
+│  Auth · Saldırı Senaryoları · Export · Timeline  │
 └────────────────────┬─────────────────────────────┘
-                     │ HTTP / REST
+                     │ REST API
 ┌────────────────────▼─────────────────────────────┐
 │  FastAPI  (localhost:8087)                        │
-│  /api/v1 · JWT · Domain Verification · /metrics  │
+│  JWT · Domain Verification · Prometheus           │
 └──────┬─────────┬──────────┬────────────┬─────────┘
        │         │          │            │
   Celery    Diff Engine  Risk Calc    AI Analysis
-  Worker    (snapshot    (CVSS        (rule-based
-  (Redis)    compare)     weight)      + Ollama)
+  Worker               (CVSS)       (rule + Ollama)
        │
-┌──────▼─────────────────────────────────────────┐
-│  Scanners                                       │
-│  DNS Brute │ Port TCP │ SSL Cert │ Cloud Enum   │
-└─────────────────────────────────────────────────┘
+  DNS │ Port │ SSL │ Cloud Scanners
        │
-  PostgreSQL (snapshot store · change history)
+  PostgreSQL (snapshot · change history)
 ```
 
 ---
 
-## Hızlı başlangıç
+## Hızlı başlangıç (Demo)
 
 ### Gereksinimler
 
 - Docker + Docker Compose
-- (Opsiyonel) [Ollama](https://ollama.com) — yerel LLM için
+- (Opsiyonel) [Ollama](https://ollama.com) — yerel LLM
 
-### 1. Kur ve başlat
+### Kurulum
 
 ```bash
-git clone https://github.com/YOUR_USER/kurumsall
+git clone https://github.com/kagannhoo/kurumsall
 cd kurumsall
-cp .env.example .env        # production'da SECRET_KEY ve ADMIN_PASSWORD değiştir
+cp .env.example .env
 docker compose up -d postgres redis
 docker compose run --rm api alembic upgrade head
 docker compose up -d
-```
-
-### 2. Demo veri yükle
-
-```bash
 docker compose exec api python scripts/seed_demo.py
 ```
 
-### 3. Aç
+### Erişim
 
 | Servis | URL |
 |--------|-----|
 | Dashboard | http://localhost:5173 |
 | API / Swagger | http://localhost:8087/docs |
 | Health | http://localhost:8087/health |
-| Prometheus | http://localhost:8087/metrics |
 
-Giriş: **admin@local / admin123** (`.env`'den değiştirilebilir)
+Giriş: **admin@local / admin123**
+
+> **Bilgisayarı yeniden başlattıktan sonra** API cevap vermezse:
+> `docker compose up -d && docker compose restart api worker`
 
 ---
 
@@ -91,45 +117,32 @@ Giriş: **admin@local / admin123** (`.env`'den değiştirilebilir)
 
 | | Demo | Production |
 |---|------|------------|
-| Domain | `example.com` (RFC 2606 test domain) | Kendi doğrulanmış domain'iniz |
-| Cloud | Yapılandırılmış envanter JSON | AWS/Azure API (yol haritasında) |
-| Port/DNS | Gerçek tarama (sınırlı kapsam) | Tam kapsam + Naabu/Subfinder |
-| Domain doğrulama | "Demo: Doğrula" butonu | DNS TXT kaydı zorunlu |
+| Domain | `example.com` (test domain) | Kendi doğrulanmış domain |
+| Cloud | JSON config envanteri | AWS/Azure API (roadmap) |
+| Port/DNS | Yerleşik (sınırlı) | Naabu + Subfinder |
+| Doğrulama | "Demo: Doğrula" butonu | DNS TXT kaydı zorunlu |
+| Banner | Dashboard'da sarı uyarı | Yok |
 
-Dashboard'da **Demo modu** banner'ı otomatik görünür. Tarama modül panelinde her modülün durumu (ok/failed) ve modu (yerleşik / harici / yapılandırılmış envanter) listelenir.
+**Gerçek kullanım için ne değiştirmelisiniz?**
 
-Production için `.env` içinde:
-```bash
-DEMO_MODE=false
-REQUIRE_DOMAIN_VERIFICATION=true
-SCANNER_USE_EXTERNAL_TOOLS=true
-SECRET_KEY=<openssl rand -hex 32>
-ADMIN_PASSWORD=<güçlü şifre>
-```
+1. `.env` → `SECRET_KEY`, `ADMIN_PASSWORD`, `DEMO_MODE=false`
+2. Kendi organizasyonunuzu oluşturun (demo-company kullanmayın)
+3. Domain'inizi DNS TXT ile doğrulayın
+4. Naabu/Subfinder kurun → `SCANNER_USE_EXTERNAL_TOOLS=true`
+5. Ollama başlatın → AI analiz zenginleşir
+6. Slack webhook → kritik bulgu alertleri
+
+Detaylı adımlar: **[PRODUCTION.md](PRODUCTION.md)**
 
 ---
 
-## Ollama (AI saldırı analizi)
+## Ollama (AI tehdit analizi)
 
-Sistem Ollama olmadan da çalışır — kural tabanlı saldırı senaryoları üretir. Ollama açıkken analiz LLM ile zenginleştirilir, veri dışarı çıkmaz.
+Ollama olmadan da çalışır (kural tabanlı motor). Açıkken LLM ile zenginleşir, veri dışarı çıkmaz.
 
 ```bash
-# Ayrı terminalde
 ollama serve
 ollama pull llama3.1
-```
-
-Durum: http://localhost:8087/api/v1/system/status
-
----
-
-## Gelişmiş tarama (Opsiyonel)
-
-[Subfinder](https://github.com/projectdiscovery/subfinder) ve [Naabu](https://github.com/projectdiscovery/naabu) kuruluysa daha geniş subdomain ve port taraması yapılır:
-
-```bash
-# .env veya docker-compose.yml içinde
-SCANNER_USE_EXTERNAL_TOOLS=true
 ```
 
 ---
@@ -137,61 +150,46 @@ SCANNER_USE_EXTERNAL_TOOLS=true
 ## Testler
 
 ```bash
-cd backend
-python -m pytest tests/ -q
+cd backend && python -m pytest tests/ -q
+# 16 test — diff, risk, threat engine, API health
 ```
 
 ---
 
-## Servisler ve portlar
+## Yol haritası
 
-| Servis | Host port | Container port |
-|--------|-----------|---------------|
-| API (FastAPI) | 8087 | 8000 |
-| Dashboard (Vite) | 5173 | 5173 |
-| PostgreSQL | 5433 | 5432 |
-| Redis | — | 6379 (sadece internal) |
+- AWS / Azure / GCP canlı API entegrasyonu
+- Nuclei zafiyet taraması
+- Shodan / Certificate Transparency pasif keşif
+- Multi-tenant RBAC
+
+`GET /api/v1/system/info` → `roadmap` alanı
 
 ---
 
-## Modüller
+## Dokümantasyon
 
-| Modül | Konum | Görev |
-|-------|-------|-------|
-| Scanners | `backend/app/services/scanners/` | DNS, port, SSL, cloud keşfi |
-| Diff Engine | `backend/app/services/diff/` | Snapshot karşılaştırma |
-| Risk Calculator | `backend/app/services/risk/` | CVSS ağırlıklı skorlama |
-| Threat Engine | `backend/app/services/ai/threat_engine.py` | Saldırı senaryoları |
-| AI Analysis | `backend/app/services/ai/analysis.py` | Ollama entegrasyonu |
-| Export | `backend/app/services/export/` | PDF + CSV rapor |
-| Auth | `backend/app/core/` | JWT + API key |
-| Alerts | `backend/app/services/alerts/` | Slack webhook |
+| Dosya | İçerik |
+|-------|--------|
+| [PRODUCTION.md](PRODUCTION.md) | Gerçek kullanım kurulum rehberi |
+| [SECURITY.md](SECURITY.md) | Yasal sınırlar, TCK 243–245 |
+| [CREDITS.md](CREDITS.md) | Bağımlılıklar, MITRE ATT&CK atıfı |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Katkı rehberi |
+| [docs/LINKEDIN.md](docs/LINKEDIN.md) | LinkedIn paylaşım metni |
 
 ---
 
 ## Yasal uyarı
 
-> KurSal **yalnızca yetkili olduğunuz sistemlerde** kullanılmak üzere tasarlanmıştır.
-> İzinsiz tarama Türkiye'de TCK 243–245 kapsamında suçtur.
-> Bkz. [SECURITY.md](SECURITY.md)
+> KurSal **yalnızca yetkili olduğunuz sistemlerde** kullanılabilir. İzinsiz tarama TCK 243–245 kapsamında suçtur.
 
-## Kaynakça ve atıflar
-
-- Tehdit taktikleri: [MITRE ATT&CK®](https://attack.mitre.org/) (CC BY 4.0)
-- Risk skorlama metodolojisi: [CVSS — FIRST.Org](https://www.first.org/cvss/)
-- Opsiyonel tarama araçları: [Subfinder](https://github.com/projectdiscovery/subfinder), [Naabu](https://github.com/projectdiscovery/naabu) (MIT)
-- Tüm bağımlılıklar ve lisansları: [CREDITS.md](CREDITS.md)
-- Geliştirme: [Cursor](https://cursor.com/) + Auto (Cursor Agent)
+---
 
 ## Yazar ve geliştirme
 
 **Kagan** ([@kagannhoo](https://github.com/kagannhoo)) — proje sahibi
 
 **Cursor + Auto** — AI destekli geliştirme asistanı
-
-## Katkı
-
-Bkz. [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Lisans
 
