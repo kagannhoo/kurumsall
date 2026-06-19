@@ -57,6 +57,7 @@ Her birinin lisans şartlarına eksiksiz uyulmaktadır.
 | [Ollama](https://ollama.com/) | MIT | Yerel LLM çalıştırma |
 | [Subfinder](https://github.com/projectdiscovery/subfinder) (opsiyonel) | MIT | Pasif subdomain keşfi |
 | [Naabu](https://github.com/projectdiscovery/naabu) (opsiyonel) | MIT | Port tarama |
+| [Nuclei](https://github.com/projectdiscovery/nuclei) (opsiyonel) | MIT | CVE / zafiyet taraması |
 
 ---
 

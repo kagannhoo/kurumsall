@@ -60,6 +60,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        INSTALL_SCANNERS: ${INSTALL_SCANNERS:-false}
     command: celery -A app.workers.celery_app worker --loglevel=info --concurrency=2
     environment:
       DATABASE_URL: postgresql+asyncpg://asm:asm@postgres:5432/asm

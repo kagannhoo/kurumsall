@@ -44,7 +44,7 @@ Kurumsal firmaların en büyük kör noktası genelde **dışarıdan görünen d
 
 | Özellik | Açıklama |
 |---------|----------|
-| **Asset keşfi** | DNS brute-force, port tarama (TCP connect), SSL sertifika analizi, cloud envanter |
+| **Asset keşfi** | DNS brute-force, port tarama, SSL analizi, cloud envanter, **Nuclei CVE taraması** |
 | **Snapshot diff** | Her taramayı öncekiyle karşılaştırır; eklenen port, kaybolan domain, değişen SSL |
 | **Risk skoru** | CVSS ağırlıklı 0–10 skor, haftalık delta |
 | **Saldırı senaryoları** | Rule-based + Ollama LLM zenginleştirme |
@@ -72,7 +72,7 @@ Kurumsal firmaların en büyük kör noktası genelde **dışarıdan görünen d
   Celery    Diff Engine  Risk Calc    AI Analysis
   Worker               (CVSS)       (rule + Ollama)
        │
-  DNS │ Port │ SSL │ Cloud Scanners
+  DNS │ Port │ SSL │ Cloud │ Nuclei Scanners
        │
   PostgreSQL (snapshot · change history)
 ```
@@ -120,6 +120,7 @@ Giriş: **admin@local / admin123**
 | Domain | `example.com` (test domain) | Kendi doğrulanmış domain |
 | Cloud | JSON config envanteri | AWS/Azure API (roadmap) |
 | Port/DNS | Yerleşik (sınırlı) | Naabu + Subfinder |
+| Zafiyet | Kapalı (Nuclei devre dışı) | Nuclei CVE şablonları |
 | Doğrulama | "Demo: Doğrula" butonu | DNS TXT kaydı zorunlu |
 | Banner | Dashboard'da sarı uyarı | Yok |
 
@@ -128,7 +129,7 @@ Giriş: **admin@local / admin123**
 1. `.env` → `SECRET_KEY`, `ADMIN_PASSWORD`, `DEMO_MODE=false`
 2. Kendi organizasyonunuzu oluşturun (demo-company kullanmayın)
 3. Domain'inizi DNS TXT ile doğrulayın
-4. Naabu/Subfinder kurun → `SCANNER_USE_EXTERNAL_TOOLS=true`
+4. Naabu/Subfinder/Nuclei kurun → `SCANNER_USE_EXTERNAL_TOOLS=true`
 5. Ollama başlatın → AI analiz zenginleşir
 6. Slack webhook → kritik bulgu alertleri
 
@@ -159,7 +160,6 @@ cd backend && python -m pytest tests/ -q
 ## Yol haritası
 
 - AWS / Azure / GCP canlı API entegrasyonu
-- Nuclei zafiyet taraması
 - Shodan / Certificate Transparency pasif keşif
 - Multi-tenant RBAC
 

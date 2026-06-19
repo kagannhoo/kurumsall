@@ -269,6 +269,9 @@ class ThreatScenarioEngine:
                         )
                     )
 
+        if change.asset_type == AssetType.VULNERABILITY and change.change_type == ChangeType.ADDED:
+            self._from_vulnerability(change.current_value or {}, change.summary, scenarios, actions, seen)
+
     def _from_snapshot(
         self,
         snap: SnapshotRecord,
@@ -280,6 +283,56 @@ class ThreatScenarioEngine:
             port = snap.payload.get("port")
             if port and int(port) in PORT_RULES:
                 self._add_port_rule(int(port), snap.identifier, scenarios, actions, seen)
+
+        if snap.asset_type == AssetType.VULNERABILITY:
+            self._from_vulnerability(snap.payload, snap.identifier, scenarios, actions, seen)
+
+    def _from_vulnerability(
+        self,
+        payload: dict,
+        finding: str,
+        scenarios: list[AttackScenario],
+        actions: list[ActionItem],
+        seen: set[str],
+    ) -> None:
+        template_id = payload.get("template_id") or "unknown"
+        sid = f"nuclei-{template_id}"
+        if sid in seen:
+            return
+        seen.add(sid)
+
+        name = payload.get("name") or template_id
+        severity = str(payload.get("severity") or "medium").lower()
+        host = payload.get("host") or payload.get("matched_at") or "hedef"
+        cve_ids = payload.get("cve_ids") or []
+        cve_label = ", ".join(cve_ids[:3]) if cve_ids else "bilinen CVE"
+
+        scenario_severity = severity if severity in ("critical", "high", "medium") else "high"
+        scenarios.append(
+            AttackScenario(
+                id=sid,
+                title=f"Nuclei Zafiyeti — {name}",
+                severity=scenario_severity,
+                attack_chain=[
+                    f"Nuclei şablonu ({template_id}) {host} üzerinde eşleşti",
+                    f"Saldırgan {cve_label} exploit zincirini otomatik tarayıcılarla dener",
+                    "Başarılı exploit → servis ele geçirme veya veri sızıntısı",
+                ],
+                business_impact="Bilinen CVE exploit'i — patch gecikmesi compliance ve operasyonel risk",
+                related_findings=[finding],
+                mitre_tactics=["Initial Access", "Exploitation"],
+            )
+        )
+        actions.append(
+            ActionItem(
+                priority=scenario_severity,
+                title=f"{name} — patch / mitigasyon uygula",
+                description=f"{finding}. Nuclei eşleşmesi doğrulanmalı, vendor advisory takip edilmeli.",
+                owner="Uygulama Güvenliği",
+                timeframe="24 saat" if scenario_severity == "critical" else "3 gün",
+                related_scenario_id=sid,
+            )
+        )
 
     def _add_port_rule(
         self,

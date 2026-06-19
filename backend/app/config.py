@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     scanner_naabu_path: str = "naabu"
     scanner_subfinder_path: str = "subfinder"
     scanner_nuclei_path: str = "nuclei"
+    scanner_nuclei_severity: str = "critical,high,medium"
+    scanner_nuclei_tags: str = "cve"
+    scanner_nuclei_timeout: int = 900
     scanner_use_external_tools: bool = True
 
     secret_key: str = "change-me-in-production-use-openssl-rand"

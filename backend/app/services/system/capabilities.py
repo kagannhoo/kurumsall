@@ -14,6 +14,7 @@ SCANNER_NOTES: dict[str, str] = {
     "port": "Yerleşik: TCP connect taraması. Naabu açıksa top-100 port modu kullanılır.",
     "ssl": "Canlı TLS handshake ile sertifika süresi ve SAN analizi.",
     "cloud": "Şu an yapılandırılmış envanter modu — AWS/Azure API entegrasyonu yol haritasında.",
+    "vulnerability": "Nuclei CVE şablonları. Kurulu değilse veya kapalıysa modül atlanır.",
 }
 
 
@@ -43,9 +44,11 @@ def build_scanner_modules(scan_metadata: dict | None, settings: Settings | None 
     for key, label in SCANNER_LABELS.items():
         result = results.get(key, {})
         status = result.get("status", "pending")
-        mode = "external" if settings.scanner_use_external_tools and key in ("dns", "port") else "builtin"
+        mode = "external" if settings.scanner_use_external_tools and key in ("dns", "port", "vulnerability") else "builtin"
         if key == "cloud":
             mode = "configured_inventory"
+        if key == "vulnerability" and not settings.scanner_use_external_tools:
+            mode = "disabled"
 
         modules.append(
             {
@@ -83,10 +86,10 @@ def build_platform_info(org: Organization | None = None) -> dict:
             "port": "naabu" if settings.scanner_use_external_tools else "tcp_connect",
             "ssl": "live_tls",
             "cloud": "configured_inventory",
+            "vulnerability": "nuclei" if settings.scanner_use_external_tools else "disabled",
         },
         "roadmap": [
             "AWS / Azure / GCP canlı API entegrasyonu",
-            "Nuclei zafiyet taraması",
             "Shodan / Certificate Transparency pasif keşif",
             "Multi-tenant RBAC",
         ],

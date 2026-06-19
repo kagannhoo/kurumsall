@@ -12,6 +12,7 @@ Bu rehber, demo ortamından **gerçek kurumsal kullanıma** geçmek için yapman
 | Domain doğrulama | UI'da "Demo: Doğrula" butonu | DNS TXT kaydı (`_asm-verify.domain.com`) |
 | Cloud envanter | JSON config'ten okunur | AWS/Azure API (roadmap) veya manuel envanter |
 | Port/DNS tarama | Yerleşik (sınırlı port listesi) | Naabu + Subfinder kurulumu |
+| Zafiyet tarama | Nuclei devre dışı | Nuclei + CVE şablonları |
 | AI analiz | Ollama kapalıysa kural tabanlı | `ollama serve` + `llama3.1` |
 | Kimlik bilgileri | `admin@local / admin123` | Güçlü şifre + `SECRET_KEY` |
 | Alert | Kapalı | Slack webhook URL |
@@ -39,6 +40,9 @@ AUTH_ENABLED=true
 
 # Opsiyonel — harici tarayıcılar
 SCANNER_USE_EXTERNAL_TOOLS=true
+SCANNER_NUCLEI_SEVERITY=critical,high,medium
+SCANNER_NUCLEI_TAGS=cve
+SCANNER_NUCLEI_TIMEOUT=900
 
 # Opsiyonel — Slack alert
 ALERT_SLACK_WEBHOOK=https://hooks.slack.com/services/XXX/YYY/ZZZ
@@ -101,20 +105,40 @@ Doğrulama:
 
 ## Adım 5 — Harici tarayıcıları kurun (önerilen)
 
-Docker container içinde Naabu ve Subfinder kurulu değil. Production tarama kapsamı için:
+Docker container içinde Naabu, Subfinder ve Nuclei varsayılan olarak kurulu değil. Production tarama kapsamı için worker imajını tarayıcılarla build edin:
 
-```dockerfile
-# backend/Dockerfile'a eklenebilir (roadmap)
-RUN go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-RUN go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+```powershell
+# docker-compose.yml worker/api build args:
+#   INSTALL_SCANNERS: "true"
+docker compose build --build-arg INSTALL_SCANNERS=true worker api
+docker compose up -d
 ```
 
-Veya host makinede kurup `SCANNER_USE_EXTERNAL_TOOLS=true` ile volume mount.
+Worker container'da Nuclei şablonlarını güncelleyin (ilk kurulumda bir kez):
 
-Şu an yerleşik mod:
+```powershell
+docker compose exec worker nuclei -update-templates
+```
+
+Alternatif — host makinede kurulum:
+
+```bash
+# Nuclei (Linux/macOS)
+go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+nuclei -update-templates
+
+# Subfinder + Naabu
+go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest
+```
+
+`.env` → `SCANNER_USE_EXTERNAL_TOOLS=true`
+
+Şu an yerleşik mod (harici araçlar kapalı):
 - DNS: 15 yaygın subdomain brute-force
 - Port: 16 kritik port TCP connect
 - SSL: Canlı TLS handshake
+- Zafiyet: atlanır (Nuclei gerekli)
 
 ---
 

@@ -26,14 +26,14 @@ from app.services.domain.verification import DomainVerificationService
 from app.services.organizations.helpers import get_cloud_accounts
 from app.services.risk.calculator import RiskCalculator
 from app.services.scanners.base import ScanContext
-from app.services.scanners.collectors import CloudScanner, DNSScanner, PortScanner, SSLScanner
+from app.services.scanners.collectors import CloudScanner, DNSScanner, NucleiScanner, PortScanner, SSLScanner
 
 logger = structlog.get_logger(__name__)
 
 
 class ScanOrchestrator:
     def __init__(self) -> None:
-        self.scanners = [DNSScanner(), PortScanner(), SSLScanner(), CloudScanner()]
+        self.scanners = [DNSScanner(), PortScanner(), SSLScanner(), CloudScanner(), NucleiScanner()]
         self.diff_engine = DiffEngine()
         self.risk_calculator = RiskCalculator()
         self.ai_service = AIAnalysisService()

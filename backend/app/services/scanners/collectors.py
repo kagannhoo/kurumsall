@@ -1,8 +1,10 @@
 import asyncio
 import json
+import os
 import shutil
 import socket
 import ssl
+import tempfile
 from datetime import datetime, timezone
 
 import dns.resolver
@@ -328,3 +330,140 @@ class CloudScanner(BaseScanner):
         if rtype in ("rds_instance", "cloud_sql") and resource.get("public"):
             return 9.0
         return score
+
+
+SEVERITY_RISK: dict[str, float] = {
+    "critical": 10.0,
+    "high": 8.5,
+    "medium": 5.5,
+    "low": 2.5,
+    "info": 1.0,
+    "unknown": 4.0,
+}
+
+
+class NucleiScanner(BaseScanner):
+    kind = ScannerKind.VULNERABILITY
+
+    async def scan(self, context: ScanContext) -> list[DiscoveredAsset]:
+        if not settings.scanner_use_external_tools:
+            logger.debug("nuclei_skipped", reason="external_tools_disabled")
+            return []
+        if not shutil.which(settings.scanner_nuclei_path):
+            logger.info("nuclei_not_found", path=settings.scanner_nuclei_path)
+            return []
+
+        targets = self._build_targets(context)
+        if not targets:
+            return []
+
+        return await self._run_nuclei(targets)
+
+    def _build_targets(self, context: ScanContext) -> list[str]:
+        targets: list[str] = []
+        seen: set[str] = set()
+        for domain in context.root_domains:
+            for url in (f"https://{domain}", f"http://{domain}"):
+                if url not in seen:
+                    seen.add(url)
+                    targets.append(url)
+            for sub in COMMON_SUBDOMAINS[:8]:
+                host = f"{sub}.{domain}"
+                for url in (f"https://{host}", f"http://{host}"):
+                    if url not in seen:
+                        seen.add(url)
+                        targets.append(url)
+        return targets
+
+    @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=1, min=2, max=10))
+    async def _run_nuclei(self, targets: list[str]) -> list[DiscoveredAsset]:
+        target_file: str | None = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False, encoding="utf-8") as handle:
+                handle.write("\n".join(targets))
+                target_file = handle.name
+
+            cmd = [
+                settings.scanner_nuclei_path,
+                "-list",
+                target_file,
+                "-jsonl",
+                "-silent",
+                "-no-color",
+                "-severity",
+                settings.scanner_nuclei_severity,
+            ]
+            if settings.scanner_nuclei_tags.strip():
+                cmd.extend(["-tags", settings.scanner_nuclei_tags.strip()])
+
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(),
+                timeout=settings.scanner_nuclei_timeout,
+            )
+            if proc.returncode not in (0, 1):
+                err = stderr.decode().strip()
+                logger.warning("nuclei_exit", code=proc.returncode, stderr=err[:500])
+            return self._parse_output(stdout.decode())
+        except asyncio.TimeoutError:
+            logger.warning("nuclei_timeout", seconds=settings.scanner_nuclei_timeout)
+            return []
+        finally:
+            if target_file and os.path.exists(target_file):
+                os.unlink(target_file)
+
+    def _parse_output(self, raw: str) -> list[DiscoveredAsset]:
+        assets: list[DiscoveredAsset] = []
+        seen: set[str] = set()
+
+        for line in raw.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
+            template_id = data.get("template-id") or data.get("templateID") or "unknown"
+            info = data.get("info") or {}
+            name = info.get("name") or template_id
+            severity = str(info.get("severity") or "unknown").lower()
+            matched_at = data.get("matched-at") or data.get("matched") or data.get("host") or ""
+            host = data.get("host") or matched_at
+            identifier = f"vuln:{template_id}:{matched_at or host}"
+            if identifier in seen:
+                continue
+            seen.add(identifier)
+
+            cve_ids = [tag.upper() for tag in info.get("tags", []) if str(tag).lower().startswith("cve")]
+            classification = info.get("classification") or {}
+            if classification.get("cve-id"):
+                cve_ids.append(str(classification["cve-id"]).upper())
+            if classification.get("cwe-id"):
+                cve_ids.append(f"CWE-{classification['cwe-id']}")
+
+            assets.append(
+                DiscoveredAsset(
+                    asset_type=AssetType.VULNERABILITY,
+                    identifier=identifier,
+                    display_name=f"{name} — {host}",
+                    payload={
+                        "template_id": template_id,
+                        "name": name,
+                        "severity": severity,
+                        "host": host,
+                        "matched_at": matched_at,
+                        "type": data.get("type"),
+                        "cve_ids": sorted(set(cve_ids)),
+                        "tags": info.get("tags", []),
+                        "source": "nuclei",
+                    },
+                    risk_score=SEVERITY_RISK.get(severity, SEVERITY_RISK["unknown"]),
+                )
+            )
+        return assets

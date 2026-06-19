@@ -87,6 +87,27 @@ class TestThreatEngine:
         assert any("MySQL" in s.title for s in scenarios)
         assert len(actions) >= 1
 
+    def test_nuclei_vulnerability_generates_scenario(self):
+        engine = ThreatScenarioEngine()
+        snapshots = [
+            _snap(
+                AssetType.VULNERABILITY,
+                "vuln:CVE-2024-0001:https://app.example.com",
+                {
+                    "template_id": "CVE-2024-0001",
+                    "name": "Remote Code Execution",
+                    "severity": "critical",
+                    "host": "app.example.com",
+                    "cve_ids": ["CVE-2024-0001"],
+                    "source": "nuclei",
+                },
+                10.0,
+            )
+        ]
+        scenarios, actions = engine.analyze([], snapshots)
+        assert any("Nuclei" in s.title for s in scenarios)
+        assert any(a.priority == "critical" for a in actions)
+
     def test_public_s3_generates_scenario(self):
         engine = ThreatScenarioEngine()
         from app.services.diff.engine import DiffResult
