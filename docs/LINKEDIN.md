@@ -1,6 +1,6 @@
 # LinkedIn Paylaşım Metni — KurSal
 
-Dashboard ekran görüntüsü ekle (saldırı senaryoları + tarama modül durumu paneli ideal).
+Dashboard ekran görüntüsü ekle — repoda hazır: `docs/screenshots/` (login, dashboard, scanner modülleri, diff+AI paneli). LinkedIn'de 2–3 görsel yeterli; en etkili olanlar: **scanner-modules.png** ve **diff-ai-panel.png**.
 
 Aşağıdaki **çift dilli post** tek paylaşımda TR + EN içerir — LinkedIn'e olduğu gibi yapıştır.
 

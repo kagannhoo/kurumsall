@@ -12,6 +12,18 @@
 
 ---
 
+## Ekran görüntüleri
+
+| Giriş | Dashboard özeti |
+|-------|-------------------|
+| ![KurSal giriş ekranı](docs/screenshots/login.png) | ![Dashboard — envanter ve risk dağılımı](docs/screenshots/dashboard-overview.png) |
+
+| Tarama modülleri | Diff raporu + AI tehdit analizi |
+|------------------|----------------------------------|
+| ![DNS, port, SSL, cloud, Nuclei modül durumu](docs/screenshots/scanner-modules.png) | ![Diff raporu ve AI tehdit değerlendirmesi](docs/screenshots/diff-ai-panel.png) |
+
+---
+
 ## Ne işe yarar?
 
 Kurumsal firmaların en büyük kör noktası genelde **dışarıdan görünen dijital yüzeydir**. KurSal şu sorulara otomatik cevap verir:
